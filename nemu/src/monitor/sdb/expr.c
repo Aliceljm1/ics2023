@@ -202,17 +202,20 @@ static bool make_token(char *e) {
         switch (rules[i].token_type){
           
           case TK_HEX:
+         {
             uint32_t hex_val = (uint32_t)strtol(substr_start, NULL, 16);
             sprintf(tokens[nr_token].str, "%d", hex_val);
+         }   
+        
           break;
           case TK_DEX: case TK_EQ:
             strcpy(tokens[nr_token].str, substr_start);
           break;
-          case TK_REG:
+          case TK_REG:{
             char *s =  substr_start + 1;
             bool *flag = false;
             uint32_t reg_val = isa_reg_str2val(s, flag);
-            sprintf(tokens[nr_token].str, "%d", reg_val);
+            sprintf(tokens[nr_token].str, "%d", reg_val);}
           break;
           default:
             strcpy(tokens[nr_token].str, substr_start);

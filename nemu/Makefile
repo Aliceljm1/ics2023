@@ -49,6 +49,14 @@ CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(C
 CFLAGS  += $(CFLAGS_BUILD) $(CFLAGS_TRACE) -D__GUEST_ISA__=$(GUEST_ISA)
 LDFLAGS += $(CFLAGS_BUILD)
 
+
+#add by ljm 
+CFLAGS += -fPIC
+CXXFLAGS += -fPIC
+LDFLAGS += -L/usr/lib/x86_64-linux-gnu -ltinfo -lpthread -lz
+#·½±ãµ÷ÊÔ´íÎó LDFLAGS += -v
+
+
 # Include rules for menuconfig
 include $(NEMU_HOME)/scripts/config.mk
 
