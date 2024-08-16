@@ -20,8 +20,8 @@
 
 /* use static to define the struct's domin and initialize it with '\0' */
 static WP wp_pool[NR_WP] = {};   
-//static WP *free_head = NULL, *busy_head = NULL;
-static WP *free_head = NULL, *busy_head = NULL;
+//static WP *free_head = NULL, *work_head = NULL;
+static WP *free_head = NULL, *work_head = NULL;//带头链表，头本身不存储信息
 
 static char break_address[16] = {0};
 
@@ -38,9 +38,9 @@ void init_wp_pool() {
    *   so the number of available nodes are (NR_WP - 2)
    */
   free_head = wp_pool; 
-  busy_head = free_head->next;
-  free_head->next = busy_head->next;
-  busy_head->next = NULL;
+  work_head = free_head->next;
+  free_head->next = work_head->next;
+  work_head->next = NULL;
 }
 
 
@@ -51,8 +51,8 @@ WP* new_wp(char *args){
     strcpy(tmp->addr, args);
     tmp->value = expr(args, success);
     free_head->next = tmp->next;
-    tmp->next = busy_head->next;
-    busy_head->next = tmp;
+    tmp->next = work_head->next;
+    work_head->next = tmp;
   } /* fetch the free watchpoint */
   else{
     printf("no enough free point!\n");
@@ -62,7 +62,7 @@ WP* new_wp(char *args){
 };
 
 void free_wp(int NO){
-  WP *match_point = busy_head;
+  WP *match_point = work_head;
   WP *wp = NULL;
   if(NO == match_point->NO){
     wp = match_point->next;
@@ -88,27 +88,28 @@ void free_wp(int NO){
 };
 
 void wp_dis(){
-  WP *wp = busy_head->next;
+  WP *wp = work_head->next;
   while(wp){
     printf("    NO.%d watchpoint : %s\n", wp->NO, wp->addr);
     wp = wp->next;
   }
 }
 
+#include "utils.h"
 void wp_check(vaddr_t pc, int *nemu_state){
   char *args ;
-  int value;
+  int new_value;
   bool *success = (bool*)true;
-  WP *wp = busy_head;
+  WP *wp = work_head;
   while(wp->next){
     wp = wp->next;
     args = wp->addr;
-    value = expr(args, success);
-    if(wp->value != value){
-      printf("the value of %s changed from 0x%08x to 0x%08x\n", args, wp->value, value);
+    new_value = expr(args, success);
+    if(wp->value != new_value){
+      printf("the value of %s changed from 0x%08x to 0x%08x\n", args, wp->value, new_value);
       printf("pc is 0x%x now\n", pc);
-      *nemu_state = 1;
-      wp->value = value;
+      *nemu_state = NEMU_STOP;
+      wp->value = new_value;
     }    
   }
 }

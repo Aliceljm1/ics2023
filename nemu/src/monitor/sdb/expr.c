@@ -20,6 +20,7 @@
  */
 #include <regex.h>
 #include <memory/paddr.h>
+#include "sdb.h"
 
 enum
 {
@@ -296,6 +297,49 @@ static bool make_token(char *e)
   return true;
 }
 
+bool isnum(int i)
+{
+  return tokens[i].type == TK_DEX || tokens[i].type == TK_HEX;
+}
+
+bool isreg(int i)
+{
+  return tokens[i].type==TK_REG;
+}
+
+bool isleft(int i)
+{
+  return tokens[i].type == '(';
+}
+
+bool isright(int i)
+{
+  return tokens[i].type == ')';
+}
+
+
+// 解析token,识别出解引用操作符和负号
+void parse_token()
+{
+
+  /* TODO: Insert codes to evaluate the expression. */
+  for (int i = 0; i < nr_token; i++)
+  {
+    if (tokens[i].type == '*' &&
+        (i == 0 || (!isnum(i - 1) && !isreg(i - 1) && !isright(i - 1))))
+    {
+      tokens[i].type = TK_DEREF; // 当前是解引用操作符号,前一个不是数字，不是寄存器，不是右
+      tokens[i].priority = 7;
+    }
+    if (tokens[i].type == '-' &&
+        (i == 0 || (!isnum(i - 1) && !isreg(i - 1) && !isright(i - 1))))
+    {
+      tokens[i].type = TK_NEG;
+      tokens[i].priority = 7;
+    }
+  }
+}
+
 /**
  * 求解表达式
  * 1.词法分析，解析出tokes
@@ -310,25 +354,10 @@ word_t expr(char *e, bool *success)
     *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-  for (int i = 0; i < nr_token; i++)
-  {
-    if (tokens[i].type == '*' && (i == 0 ||
-                                  (tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_DEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != ')')))
-    {
-      tokens[i].type = TK_DEREF;
-      tokens[i].priority = 7;
-    }
-    if (tokens[i].type == '-' && (i == 0 ||
-                                  (tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_DEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != ')')))
-    {
-      tokens[i].type = TK_NEG;
-      tokens[i].priority = 7;
-    }
-  }
+  parse_token();
   int value = eval(0, nr_token - 1);
   // printf("the hex of expr value is 0x%08x, dex is %d\n", value, value);
+
 
   return value;
 }
