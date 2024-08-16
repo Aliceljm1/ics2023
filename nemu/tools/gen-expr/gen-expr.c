@@ -32,7 +32,9 @@ static char *code_format =
 "}";
 
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  char* temp="(1+2)*(4-3)";
+  memcpy(buf,temp,strlen(temp));
+  // buf[0] = '(1+2)*(4-3)';
 }
 
 int main(int argc, char *argv[]) {

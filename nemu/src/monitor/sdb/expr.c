@@ -296,6 +296,13 @@ static bool make_token(char *e)
   return true;
 }
 
+/**
+ * 求解表达式
+ * 1.词法分析，解析出tokes
+ * 2.根据token来分析表达式的结构(属于BNF中的哪一种情况), 
+ * 3.递归求值
+ * 
+*/
 word_t expr(char *e, bool *success)
 {
   if (!make_token(e))
