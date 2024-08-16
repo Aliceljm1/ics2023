@@ -36,9 +36,9 @@ static char *code_format =
 void g_num()
 {
   int num = rand() % 100;
-  if(num == 0)
+  if (num == 0)
     return g_num();
-  snprintf(buf + blen, sizeof(buf)-blen , "%d", num);
+  snprintf(buf + blen, sizeof(buf) - blen, "%d", num);
 }
 
 void g_left()
@@ -46,11 +46,10 @@ void g_left()
   buf[blen] = '(';
 }
 
-
 void g_right()
 {
 
-  buf[blen]= ')';
+  buf[blen] = ')';
 }
 
 void g_opt()
@@ -65,21 +64,28 @@ void g_space()
   memcpy(buf + blen, " ", num);
 }
 
-static void gen_rand_expr()
+static void gen_rand_expr(int depth)
 {
-  int num = rand() % 3;
-  switch (num)
+  depth++;
+  int gtype = rand() % 3;
+  if (depth >= 10)
+    gtype = 0;
+  switch (gtype)
   {
   case 0:
     g_num();
     break;
   case 1:
-    g_left();gen_rand_expr();g_right();
+    g_left();
+    gen_rand_expr(depth);
+    g_right();
     break;
   default:
-    gen_rand_expr();
-    g_space();g_opt();g_space();
-    gen_rand_expr();
+    gen_rand_expr(depth);
+    g_space();
+    g_opt();
+    g_space();
+    gen_rand_expr(depth);
     break;
   }
 }
@@ -97,7 +103,7 @@ int main(int argc, char *argv[])
   for (i = 0; i < loop; i++)
   {
     memset(buf, 0, bsize);
-    gen_rand_expr();
+    gen_rand_expr(0);
     sprintf(code_buf, code_format, buf);
 
     FILE *fp = fopen("/tmp/.code.c", "w");
