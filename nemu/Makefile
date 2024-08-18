@@ -54,8 +54,7 @@ LDFLAGS += $(CFLAGS_BUILD)
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC
 LDFLAGS += -L/usr/lib/x86_64-linux-gnu -ltinfo -lpthread -lz
-#������Դ��� LDFLAGS += -v
-
+#show details LDFLAGS += -v
 
 # Include rules for menuconfig
 include $(NEMU_HOME)/scripts/config.mk

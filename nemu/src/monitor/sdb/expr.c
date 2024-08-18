@@ -321,7 +321,6 @@ bool isright(int i)
 // 解析token,识别出解引用操作符和负号
 void parse_token()
 {
-
   /* TODO: Insert codes to evaluate the expression. */
   for (int i = 0; i < nr_token; i++)
   {

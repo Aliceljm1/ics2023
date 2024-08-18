@@ -27,11 +27,18 @@ LDFLAGS := -O2 $(LDFLAGS)
 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o) $(CXXSRC:%.cc=$(OBJ_DIR)/%.o)
 
+# Define preprocessed files
+# PREPROCESSED_FILES := $(SRCS:%.c=$(OBJ_DIR)/%.i)
+
 # Compilation patterns
 $(OBJ_DIR)/%.o: %.c
 	@echo + CC $<
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+
+# @$(CC) $(CFLAGS) -E $< -o $(OBJ_DIR)/$(<:.c=.i)
+	$(CC) $(CFLAGS) -c -o $@ $<
+# 生成宏展开后的代码并输出到 .i 文件
+	$(CC) $(CFLAGS) -E $< -o $(@:.o=.i)
 	$(call call_fixdep, $(@:.o=.d), $@)
 
 $(OBJ_DIR)/%.o: %.cc
