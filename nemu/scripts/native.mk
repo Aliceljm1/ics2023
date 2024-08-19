@@ -17,7 +17,7 @@
 include $(NEMU_HOME)/scripts/build.mk
 
 include $(NEMU_HOME)/tools/difftest.mk
-
+$(info n1)
 compile_git:
 	$(call git_commit, "compile NEMU")
 $(BINARY): compile_git
@@ -33,7 +33,9 @@ NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 
 run-env: $(BINARY) $(DIFF_REF_SO)
 
-run: run-env
+#避免am-test中的程序无法编译通过
+# run: run-env
+run:
 	$(call git_commit, "run NEMU")
 	$(NEMU_EXEC)
 

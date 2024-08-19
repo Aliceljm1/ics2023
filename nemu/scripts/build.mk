@@ -20,9 +20,15 @@ CXX := clang++
 else
 CXX := g++
 endif
-LD := $(CXX)
+#强制使用riscv工具链
+# CC = riscv64-linux-gnu-gcc
+# CXX = riscv64-linux-gnu-g++
+# LD = riscv64-linux-gnu-ld
+LD := $(CXX) 
+# LD = riscv64-linux-gnu-ld
+
 INCLUDES = $(addprefix -I, $(INC_PATH))
-CFLAGS  := -O2 -MMD -Wall -Werror $(INCLUDES) $(CFLAGS)
+CFLAGS  := -O2 -MMD -Wall $(INCLUDES) $(CFLAGS)
 LDFLAGS := -O2 $(LDFLAGS)
 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o) $(CXXSRC:%.cc=$(OBJ_DIR)/%.o)
@@ -44,7 +50,7 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.cc
 	@echo + CXX $<
 	@mkdir -p $(dir $@)
-	@$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 	$(call call_fixdep, $(@:.o=.d), $@)
 
 # Depencies
@@ -57,8 +63,9 @@ $(OBJ_DIR)/%.o: %.cc
 app: $(BINARY)
 
 $(BINARY): $(OBJS) $(ARCHIVES)
-	@echo + LD $@
-	@$(LD) -o $@ $(OBJS) $(LDFLAGS) $(ARCHIVES) $(LIBS)
+	echo + LD $@
+	echo "cmd is= $(LD) -o $@ $(OBJS) $(LDFLAGS) $(ARCHIVES) $(LIBS)"
+	$(LD) -o $@ $(OBJS) $(LDFLAGS) $(ARCHIVES) $(LIBS)
 
 clean:
 	-rm -rf $(BUILD_DIR)

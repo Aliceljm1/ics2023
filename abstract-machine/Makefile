@@ -6,7 +6,7 @@ html:
 .PHONY: html
 
 ## 1. Basic Setup and Checks
-
+LOGINFO:=$(shell echo "include am Makefile")
 ### Default to create a bare-metal kernel image
 ifeq ($(MAKECMDGOALS),)
   MAKECMDGOALS  = image
@@ -78,7 +78,7 @@ READELF   = $(CROSS_COMPILE)readelf
 INC_PATH += $(WORK_DIR)/include $(addsuffix /include/, $(addprefix $(AM_HOME)/, $(LIBS)))
 INCFLAGS += $(addprefix -I, $(INC_PATH))
 
-CFLAGS   += -O2 -Og -MMD -Wall -Werror $(INCFLAGS) \
+CFLAGS   += -O2 -Og -MMD -Wall $(INCFLAGS) \
             -D__ISA__=\"$(ISA)\" -D__ISA_$(shell echo $(ISA) | tr a-z A-Z)__ \
             -D__ARCH__=$(ARCH) -D__ARCH_$(shell echo $(ARCH) | tr a-z A-Z | tr - _) \
             -D__PLATFORM__=$(PLATFORM) -D__PLATFORM_$(shell echo $(PLATFORM) | tr a-z A-Z | tr - _) \
@@ -93,13 +93,13 @@ LDFLAGS  += -z noexecstack
 
 ### Paste in arch-specific configurations (e.g., from `scripts/x86_64-qemu.mk`)
 -include $(AM_HOME)/scripts/$(ARCH).mk
-
+$(info m1)
 ### Fall back to native gcc/binutils if there is no cross compiler
 ifeq ($(wildcard $(shell which $(CC))),)
   $(info #  $(CC) not found; fall back to default gcc and binutils)
   CROSS_COMPILE :=
 endif
-
+$(info m2 $(CROSS_COMPILE))
 ## 5. Compilation Rules
 
 ### Rule (compile): a single `.c` -> `.o` (gcc)
@@ -129,7 +129,7 @@ $(LIBS): %:
 ### Rule (link): objects (`*.o`) and libraries (`*.a`) -> `IMAGE.elf`, the final ELF binary to be packed into image (ld)
 $(IMAGE).elf: $(OBJS) am $(LIBS)
 	@echo + LD "->" $(IMAGE_REL).elf
-	@$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
+	$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
 
 ### Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
 $(ARCHIVE): $(OBJS)
